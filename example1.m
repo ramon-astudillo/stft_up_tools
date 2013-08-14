@@ -71,7 +71,6 @@ config                = init_stft_HTK(config);
 % UNCERTAINTY PROPAGATION CONFIGURATION
 % Note that 'LOGUT' approx. can not be used with config.usepower = 'T'; and 
 % might break due to non positive definite matirces when 
-% config.diagcov_flag = 0;
 config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF approximation, 
                                       % 'LOGUT': Unscented transform for the logarithm propagation. 
 config.diagcov_flag       = 0;        % 0 = Full covariance after Mel-filterbank considered
@@ -135,7 +134,7 @@ for n = 1:max_samples
     % Draw from the complex Gaussian Wiener posterior
     sample_X = randcg(hat_X,Lambda,1);
     % Transform through conventional mfccs (zero variance)                             
-    sample_x = mfcc_up(sample_X,zeros(size(hat_X)),config);
+    sample_x = mfcc_up(sample_X,zeros(size(sample_X)),config);
     % Deltas and Accelerations
     sample_x = append_deltas_up(sample_x,zeros(size(sample_x)),config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
     % Cepstral Mean Subtraction
