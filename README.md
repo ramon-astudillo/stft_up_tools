@@ -13,9 +13,9 @@ Feel free to use it entirely or partially for your own code. Just reference the 
 
 for the MMSE-MFCC and other MMSE estimators attained by propagating the Wiener posterior using STFT-UP you can cite
 
-        [2] R. F. Astudillo, R. Orglmeister, "Computing MMSE Estimates and Residual Uncertainty directly in
-        the Feature Domain of ASR using STFT Domain Speech Distortion Models", IEEE Transactions on Audio, 
-        Speech and Language Processing, Vol. 21 (5), pp 1023-1034, 2013
+        [2] R. F. Astudillo, R. Orglmeister, "Computing MMSE Estimates and Residual Uncertainty directly
+        in the Feature Domain of ASR using STFT Domain Speech Distortion Models", IEEE Transactions on
+        Audio, Speech and Language Processing, Vol. 21 (5), pp 1023-1034, 2013
 
 To reproduce experiments using HTK, you will also need the voicebox toolbox   
 
@@ -34,8 +34,9 @@ Current Version contains code for:
 
 This includes the IMCRA noise variance estimator 
 
-        [3] I. Cohen, "Noise Spectrum Estimation in Adverse Environments: Improved Minima Controlled Recursive
-        Averaging", in IEEE Trans. on Speech and Audio Processing, Vol 11 (5), pp 1063-6676, 2003  
+        [3] I. Cohen, "Noise Spectrum Estimation in Adverse Environments: Improved Minima Controlled 
+        Recursive Averaging", in IEEE Trans. on Speech and Audio Processing, Vol 11 (5), pp 1063-6676,
+        2003  
 
 along with MMSE-LSA and MMSE-MFCC (attained through STFT-UP) estimators.
 
