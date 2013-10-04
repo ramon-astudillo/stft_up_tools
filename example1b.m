@@ -1,31 +1,19 @@
-% A small example of how to use STFT-UP to propagate a complex Gaussian 
-% posterior in STFT domain into MFCC domain. The STFT posterior is here 
-% generated with a Wiener filter
+% A small example of how to use STFT-UP to propagate a scaled Bernoulli  
+% posterior in STFT domain into MFCC domain. The speech probabilities 
+% are here generated with a kind-of-Wiener filter (see below)
 %
-% For the propagation formulas please refer to Chapters 5 and 6 of 
+% For the propagation formulas please refer to 
 %
-%   [Astudillo2010] R. F. Astudillo, "Integration of short-time fourier domain speech enhancement and observation uncertainty techniques for robust automatic speech recognition", Ph.D. dissertation, Technische Universitaet Berlin, 2010.
+% 	[Nesta 2013] F. Nesta, M. Matassoni, R. F. Astudillo, "A FLEXIBLE SPATIAL BLIND SOURCE EXTRACTION FRAMEWORK FOR ROBUST SPEECH RECOGNITION IN NOISY ENVIRONMENTS", In 2nd International Workshop on Machine Listening in Multisource Environments (CHiME), pages 33-38, June 2013
 % 
 % available online under: 
 %
-%   http://opus.kobv.de/tuberlin/volltexte/2010/2676/pdf/astudillo_ramon.pdf 
+%	spandh.dcs.shef.ac.uk/chime_workshop/papers/pP3_nesta.pdf
 %
-% Note that a Wiener filter is just a particular way of generating an 
-% uncertain description of the STFT of the clean signal. Refer to
+% Note that a kind-of-Wiener filter is just a particular way of 
+% generating speech probabilities. 
 %
-%   [Astudillo2013] R. F. Astudillo, R. Orglmeister, "Computing MMSE Estimates and Residual Uncertainty directly in the Feature Domain of ASR using STFT Domain Speech Distortion Models", IEEE Transactions on Audio, Speech and Language Processing, Vol. 21 (5), pp 1023-1034, 2013
-% 
-% for details on Wiener posterior as a measure of uncertaity also 
-%
-%   http://www.astudillo.com/ramon/research/
-%
-% for other forms of computing uncertainty
-%
-% Note that this example is thought for the tutorial of Interspeech 2012. 
-% In coherence with the slides, noise is denoted with N rather than the 
-% usual D.
-%
-% Ramon F. Astudillo, last revision Jun 2013
+% Ramon F. Astudillo, last revision Aug 2013
 
 % Clean the house
 clear,clc
@@ -72,43 +60,34 @@ config                = init_stft_HTK(config);
 % Note that 'LOGUT' approx. can not be used with config.usepower = 'T'; and 
 % might break due to non positive definite matirces when 
 config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF approximation, 
-                                      % 'LOGUT': Unscented transform for the logarithm propagation. 
+                                      % 'LOGUT': Dies with spasity
+                                      % uncertainty (DONT USE IT!)
 config.diagcov_flag       = 0;        % 0 = Full covariance after Mel-filterbank considered
 config.min_var            = 1e-6;     % Floor for the uncertainty
-config.Chik               = 2;        % Use Chi with one or two degrees of freedom, see [Astudillo2010, Ch. 5]
+config.Chik               = 2;        % Actually not needed here, kept for compatibility
+
 
 %%%%%%%%%%%%%%%%%%%%
 % SIGNAL PROCESSING
 %%%%%%%%%%%%%%%%%%%%
 
 % SIMULATED NOISY SIGNAL
-% We will use an example from the GRID audiovisual corpus. You can download this from
-% http://spandh.dcs.shef.ac.uk/gridcorpus/examples/s2_swwp2s.wav 
-[x,fs] = wavread('DATA/s2_swwp2s.wav');
-% Downsample to 16KHz
-x = resample(x,16,25);
-% We will artificially add white noise as an example
-n      = 0.25*mean(abs(x))*randn(size(x));
-y      = x + n;
-% Compute STFT
-Y      = stft_HTK(y,config);
-% Compute STFT of noise
-N      = stft_HTK(n,config);
+% We will use an example from the PASCAL-CHiME 2011. You can download this from
+% http://spandh.dcs.shef.ac.uk/projects/chime/PCC/datasets.html
+[y_t,fs] = wavread('DATA/s29_pbiz6p.wav');
+[d_t,fs] = wavread('DATA/s29_pbiz6p_enhanced_target.wav');
+[x_t,fs] = wavread('DATA/s29_pbiz6p_enhanced_noise.wav');
+% STFT
+Y        = stft_HTK(y_t,config);
+D        = stft_HTK(d_t,config);
+X        = stft_HTK(x_t,config);
+
+% We use the ratio of amplitudes to attain an estimate of speech activity. This is 
+% not the only way it could be done.
+p   = abs(X)./(abs(X) + abs(D));
 
 % Get sizes
-[K,L]  = size(Y);
-
-% WIENER FILTER WITH SIMULATED A PRIORI KNOWLEGDE
-% Simulate ideal noise variance knowlegde
-Lambda_N       = repmat(mean(abs(N).^2,2),1,L);
-% Get speech variance by power subtraction (in reality decision directed 
-% approaches are better)
-% Stablish a power floor at 1e-6
-Lambda_X       = max(abs(Y).^2 - Lambda_N,1e-6);
-% Wiener Estimate
-hat_X          = Lambda_X./(Lambda_X+Lambda_N).*Y;
-% Residual MSE (Wiener posterior variance)
-Lambda         = Lambda_N.*Lambda_X./(Lambda_X+Lambda_N);
+[K,L,n]  = size(Y);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PROPAGATION THROUGH FEATURE EXTRACTION
@@ -116,7 +95,7 @@ Lambda         = Lambda_N.*Lambda_X./(Lambda_X+Lambda_N);
 
 % ANALYTIC SOLUTION USING STFT-UP
 % STFT-UP solution for MFCCs                                  
-[mu_x,Sigma_x] = mfcc_up(hat_X,Lambda,config);
+[mu_x,Sigma_x] = mfcc_spars_up(Y,p,config);
 % Deltas and Accelerations
 [mu_x,Sigma_x] = append_deltas_up(mu_x,Sigma_x,config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
 % Cepstral Mean Subtraction
@@ -131,8 +110,11 @@ mu_x_MC     = zeros(size(mu_x));
 mu_x2_MC    = zeros(size(mu_x));
 % Draw samples and accumulate statistics
 for n = 1:max_samples
-    % Draw from the complex Gaussian Wiener posterior
-    sample_X = randcg(hat_X,Lambda,1);
+    % Draw from scaled Bernoulli STFT
+    sample_X_1 = Y(:,:,1).*(rand(K,L) < p(:,:,1));
+    sample_X_2 = Y(:,:,2).*(rand(K,L) < p(:,:,2));
+    % Beamformer
+    sample_X   = sample_X_1 + sample_X_2;
     % Transform through conventional mfccs (zero variance)                             
     sample_x = mfcc_up(sample_X,zeros(size(sample_X)),config);
     % Deltas and Accelerations

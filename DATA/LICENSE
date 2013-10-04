@@ -1,0 +1,25 @@
+The files contained in the DATA folder are provided under the terms of the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 license, please read
+
+	http://creativecommons.org/licenses/by-nc-sa/3.0/
+
+if you want to reuse it. Bear in mind that if you reuse this data for other projects you need to use the same license and cite all ancestors
+
+In DATA/
+
+	s2_swwp2s.wav
+
+Belongs to thew GRID database data http://spandh.dcs.shef.ac.uk/gridcorpus/ is authored by J. Barker, M. Cooke, S. Cunningham and X. Shao
+  
+	s29_pbiz6p_enhanced_noise.wav       (enhanced noise estimates)
+	s29_pbiz6p_enhanced_target.wav      (enhanced signals) 
+	s29_pbiz6p.wav                      (noisy signals)
+
+Is preprocessed data of the CHiME 2013 Track 1 data (corrupted GRID data). It has thus multiple ancestors
+
+
+Blind source separation preprocessing carried out by Francesco Nesta and Marco Matassoni according to the method detailed in 
+
+	Francesco Nesta, Marco Matassoni, Ramon Fernandez Astudillo, "A FLEXIBLE SPATIAL BLIND SOURCE EXTRACTION FRAMEWORK FOR ROBUST SPEECH RECOGNITION IN NOISY ENVIRONMENTS", In 2nd International Workshop on Machine Listening in Multisource Environments (CHiME), pages 33-38, June 2013
+
+The original noise data was authored by H. Christensen, J. Barker, N. Ma and P. Green 
+The BRIRs and mixture signals authnored by E. Vincent, J. Barker, S. Watanabe, J. Le Roux, F. Nesta, and M. Matassoni

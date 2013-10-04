@@ -84,7 +84,7 @@ config.Chik               = 2;        % Use Chi with one or two degrees of freed
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % List of files we are going to use (read from an scp for example)
-file_list = {'s2_swwp2s.wav'};
+file_list = {'DATA/s2_swwp2s.wav'};
 
 for i=1:length(file_list)
 	
