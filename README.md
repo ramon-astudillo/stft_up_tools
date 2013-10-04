@@ -5,43 +5,56 @@ This is part of the code I used for speech enhancement and Short-Time Fourier Tr
 
         http://www.astudillo.com/ramon/research/stft-up/ 
 
-Feel free to use it entirely or partially for your own code. Just reference the corresponding papers (and the URL above for e.g. the IMCRA implementation). For STFT-UP in general you can cite 
-
-        [1] R. F. Astudillo, "Integration of short-time Fourier domain speech enhancement and observation
-        uncertainty techniques for robust automatic speech recognition", Ph.D. dissertation, Technische 
-        Universitaet Berlin, 2010.
-
-for the MMSE-MFCC and other MMSE estimators attained by propagating the Wiener posterior using STFT-UP you can cite
-
-        [2] R. F. Astudillo, R. Orglmeister, "Computing MMSE Estimates and Residual Uncertainty directly
-        in the Feature Domain of ASR using STFT Domain Speech Distortion Models", IEEE Transactions on
-        Audio, Speech and Language Processing, Vol. 21 (5), pp 1023-1034, 2013
-
-To reproduce experiments using HTK, you will also need the voicebox toolbox   
-
-        http://www.ee.ic.ac.uk/hp/staff/dmb/voicebox/voicebox.html 
-
-see also
-
-        http://www.astudillo.com/ramon/research/
-
-for addittional references
-
+Feel free to use it entirely or partially for your own code. Just reference the corresponding papers (and the repo URL for e.g. the IMCRA implementation). 
 
 Current Version contains code for:
 
-**Single Channel Speech Enhancement** 
+**Improved Minima Controlled Recursive Averaging noise variance estimator (IMCRA)** 
 
-This includes the IMCRA noise variance estimator 
+        example2.m
 
-        [3] I. Cohen, "Noise Spectrum Estimation in Adverse Environments: Improved Minima Controlled 
+This is a noise variance estimator based on minimum statistics and though for non-stationary additive noises. It also provides a probabilistic voice activity detection, see 
+
+        [1] I. Cohen, "Noise Spectrum Estimation in Adverse Environments: Improved Minima Controlled 
         Recursive Averaging", in IEEE Trans. on Speech and Audio Processing, Vol 11 (5), pp 1063-6676,
         2003  
 
-along with MMSE-LSA and MMSE-MFCC (attained through STFT-UP) estimators.
+**Uncertainty Propagation for the MFCC Features**
 
-**MFCC feature extraction with uncertainty propagation**
+        example1.m
 
-This includes the STFT-UP implementation for a MFCC feature extraction with delta, acceleration features and cepstral mean subtraction (see example1.m). With aid of the voicebox toolbox the code also allows to replace HCopy with a custom matlab function (see example2.m). This can be used to reproduce the experiments in [1] 
+This propagates an uncertain description of the STFT of a signal into MFCC domain. The model used for STFT uncertainties is a complex Gaussian distribution. The example compares the analytic solutions for STFT-UP using the Log-normal approximation or the Uncented Transform with the Monte Carlo solution. To cite Uncertainty Propagation in general please use
 
-Ramón F. Astudillo, last revision Aug 2013
+        [2] R. F. Astudillo, "Integration of short-time Fourier domain speech enhancement and observation
+        uncertainty techniques for robust automatic speech recognition", Ph.D. dissertation, Technische 
+        Universitaet Berlin, 2010.
+
+**A MMSE-MFCC Estimator derived with STFT-UP**
+
+        example2.m
+
+Here the previous STFT-UP apprximation is used to propagate the residual mean square error (MSE) of the Wiener filter, thus attaining a minimum MSE (MMSE) estimator in MFCC domain (MMSE-MFCC), see
+
+        [3] R. F. Astudillo, R. Orglmeister, "Computing MMSE Estimates and Residual Uncertainty directly
+        in the Feature Domain of ASR using STFT Domain Speech Distortion Models", IEEE Transactions on
+        Audio, Speech and Language Processing, Vol. 21 (5), pp 1023-1034, 2013
+
+for details. This matlab script is also though to process a batch of files and thus allow to reproduce the front-end used in this paper. To reproduce experiments using HTK, you will also need the voicebox toolbox   
+
+        http://www.ee.ic.ac.uk/hp/staff/dmb/voicebox/voicebox.html 
+
+and the patches to modify HTK to perform Uncertainty Decoding or Modified Imputation, see
+
+        http://www.astudillo.com/ramon/research/stft-up
+
+**Sparsity Based Uncertainty Model and Propagation**
+
+        example1b.m
+
+The approach in [2] models the uncertainty over the value of each Fourier coefficient under and additivity assumption. Here we model uncertainty over either source or noise being active under an sparsity assumption. This leads to a scaled Bernoulli uncertainty model than can also be (approximately) propagated. This is described in
+
+        [4] Francesco Nesta, Marco Matassoni, Ramon Fernandez Astudillo, A FLEXIBLE SPATIAL BLIND SOURCE 
+        EXTRACTION FRAMEWORK FOR ROBUST SPEECH RECOGNITION IN NOISY ENVIRONMENTS, In 2nd International 
+        Workshop on Machine Listening in Multisource Environments (CHiME), pages 33-38, June 2013
+
+Ramón F. Astudillo, last revision Oct 2013
