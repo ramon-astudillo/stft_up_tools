@@ -23,7 +23,7 @@ This is a noise variance estimator based on minimum statistics and though for no
 
         example1.m
 
-This propagates an uncertain description of the STFT of a signal into MFCC domain. The model used for STFT uncertainties is a complex Gaussian distribution. The example compares the analytic solutions for STFT-UP using the Log-normal approximation or the Uncented Transform with the Monte Carlo solution. To cite Uncertainty Propagation in general please use
+This propagates an uncertain description of the STFT of a signal into MFCC domain. The model used for STFT uncertainties is a complex Gaussian distribution. The example compares the analytic solutions for STFT-UP using the Log-normal approximation or the Unscented Transform with the Monte Carlo solution. To cite Uncertainty Propagation in general please use
 
         [2] R. F. Astudillo, "Integration of short-time Fourier domain speech enhancement and observation
         uncertainty techniques for robust automatic speech recognition", Ph.D. dissertation, Technische 
@@ -33,13 +33,13 @@ This propagates an uncertain description of the STFT of a signal into MFCC domai
 
         example2.m
 
-Here the previous STFT-UP apprximation is used to propagate the residual mean square error (MSE) of the Wiener filter, thus attaining a minimum MSE (MMSE) estimator in MFCC domain (MMSE-MFCC), see
+Here the previous STFT-UP approximation is used to propagate the residual mean square error (MSE) of the Wiener filter, thus attaining a minimum MSE (MMSE) estimator in MFCC domain (MMSE-MFCC), see
 
         [3] R. F. Astudillo, R. Orglmeister, "Computing MMSE Estimates and Residual Uncertainty directly
         in the Feature Domain of ASR using STFT Domain Speech Distortion Models", IEEE Transactions on
         Audio, Speech and Language Processing, Vol. 21 (5), pp 1023-1034, 2013
 
-for details. This matlab script is also though to process a batch of files and thus allow to reproduce the front-end used in this paper. To reproduce experiments using HTK, you will also need the voicebox toolbox   
+for details. This Matlab script is also thought to process a batch of files and thus allow to reproduce the front-end used in this paper. To reproduce experiments using HTK, you will also need the voicebox toolbox   
 
         http://www.ee.ic.ac.uk/hp/staff/dmb/voicebox/voicebox.html 
 
