@@ -1,5 +1,5 @@
 % A small example of how to use STFT-UP to propagate a complex Gaussian 
-% posterior in STFT domain into MFCC domain. The STFT posterior is here 
+% posterior from STFT domain to MFCC domain. The STFT posterior is here 
 % generated with a Wiener filter
 %
 % For the propagation formulas please refer to Chapters 5 and 6 of 
@@ -25,7 +25,7 @@
 % In coherence with the slides, noise is denoted with N rather than the 
 % usual D.
 %
-% Ramon F. Astudillo, last revision Jun 2013
+% Ramon F. Astudillo, last revision Feb 2014
 
 % Clean the house
 clear,clc
@@ -71,19 +71,22 @@ config                = init_stft_HTK(config);
 % UNCERTAINTY PROPAGATION CONFIGURATION
 % Note that 'LOGUT' approx. can not be used with config.usepower = 'T'; and 
 % might break due to non positive definite matirces when 
-config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF approximation, 
-                                      % 'LOGUT': Unscented transform for the logarithm propagation. 
-config.diagcov_flag       = 0;        % 0 = Full covariance after Mel-filterbank considered
+config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF appro., 
+                                      % 'LOGUT': Unscented transform for
+                                      % the logarithm propagation. 
+config.diagcov_flag       = 0;        % 0 = Full covariance after 
+                                      % Mel-filterbank considered
 config.min_var            = 1e-6;     % Floor for the uncertainty
-config.Chik               = 2;        % Use Chi with one or two degrees of freedom, see [Astudillo2010, Ch. 5]
-
+config.Chik               = 2;        % Use Chi with one or two degrees of
+                                      % freedom, see [Astudillo2010, Ch. 5]
+                                                                            
 %%%%%%%%%%%%%%%%%%%%
 % SIGNAL PROCESSING
 %%%%%%%%%%%%%%%%%%%%
 
 % SIMULATED NOISY SIGNAL
-% We will use an example from the GRID audiovisual corpus. You can download this from
-% http://spandh.dcs.shef.ac.uk/gridcorpus/examples/s2_swwp2s.wav 
+% We will use an example from the GRID audiovisual corpus. You can download
+% this from http://spandh.dcs.shef.ac.uk/gridcorpus/examples/s2_swwp2s.wav 
 [x,fs] = wavread('DATA/s2_swwp2s.wav');
 % Downsample to 16KHz
 x = resample(x,16,25);
@@ -118,7 +121,9 @@ Lambda         = Lambda_N.*Lambda_X./(Lambda_X+Lambda_N);
 % STFT-UP solution for MFCCs                                  
 [mu_x,Sigma_x] = mfcc_up(hat_X,Lambda,config);
 % Deltas and Accelerations
-[mu_x,Sigma_x] = append_deltas_up(mu_x,Sigma_x,config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
+[mu_x,Sigma_x] = append_deltas_up(mu_x,Sigma_x,config.targetkind,...
+                                  config.deltawindow,config.accwindow,...
+                                  config.simplediffs);
 % Cepstral Mean Subtraction
 [mu_x,Sigma_x] = cms_up(mu_x,Sigma_x,config.targetkind);
 
@@ -129,16 +134,22 @@ max_samples = 1e3;
 % This will store first and second order statistics
 mu_x_MC     = zeros(size(mu_x));
 mu_x2_MC    = zeros(size(mu_x));
+% This will be used as dummy all-zero matrices of each size
+zeros_X     = zeros(K,L);
+zeros_x     = zeros(config.numceps + 1,L);
+zeros_xda   = zeros(3*(config.numceps + 1),L);
 % Draw samples and accumulate statistics
 for n = 1:max_samples
     % Draw from the complex Gaussian Wiener posterior
     sample_X = randcg(hat_X,Lambda,1);
     % Transform through conventional mfccs (zero variance)                             
-    sample_x = mfcc_up(sample_X,zeros(size(sample_X)),config);
+    sample_x = mfcc_up(sample_X,zeros_X,config);
     % Deltas and Accelerations
-    sample_x = append_deltas_up(sample_x,zeros(size(sample_x)),config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
+    sample_x = append_deltas_up(sample_x,zeros_x,...
+                                config.targetkind,config.deltawindow,...
+                                config.accwindow,config.simplediffs);
     % Cepstral Mean Subtraction
-    sample_x = cms_up(sample_x,zeros(size(sample_x)),config.targetkind);
+    sample_x = cms_up(sample_x,zeros_xda,config.targetkind);
     % Accumulate statistics
     mu_x_MC  = ((n-1)*mu_x_MC  + sample_x)/n;
     mu_x2_MC = ((n-1)*mu_x2_MC + sample_x.^2)/n;

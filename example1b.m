@@ -10,10 +10,10 @@
 %
 %	spandh.dcs.shef.ac.uk/chime_workshop/papers/pP3_nesta.pdf
 %
-% Note that a kind-of-Wiener filter is just a particular way of 
+% Note that this kind-of-Wiener filter is just a particular way of 
 % generating speech probabilities. 
 %
-% Ramon F. Astudillo, last revision Aug 2013
+% Ramon F. Astudillo, last revision Feb 2014
 
 % Clean the house
 clear,clc
@@ -58,22 +58,23 @@ config                = init_stft_HTK(config);
 
 % UNCERTAINTY PROPAGATION CONFIGURATION
 % Note that 'LOGUT' approx. can not be used with config.usepower = 'T'; and 
-% might break due to non positive definite matirces when 
-config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF approximation, 
-                                      % 'LOGUT': Dies with spasity
+% might break due to non-positive definite matrices when 
+config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF approx., 
+                                      % 'LOGUT': Dies with spasity based
                                       % uncertainty (DONT USE IT!)
-config.diagcov_flag       = 0;        % 0 = Full covariance after Mel-filterbank considered
+config.diagcov_flag       = 0;        % 0 = Full covariance after
+                                      % Mel-filterbank considered
 config.min_var            = 1e-6;     % Floor for the uncertainty
-config.Chik               = 2;        % Actually not needed here, kept for compatibility
-
+config.Chik               = 2;        % Actually not needed here, kept for
+                                      % compatibility
 
 %%%%%%%%%%%%%%%%%%%%
 % SIGNAL PROCESSING
 %%%%%%%%%%%%%%%%%%%%
 
 % SIMULATED NOISY SIGNAL
-% We will use an example from the PASCAL-CHiME 2011. You can download this from
-% http://spandh.dcs.shef.ac.uk/projects/chime/PCC/datasets.html
+% We will use an example from the PASCAL-CHiME 2011. You can download this
+% from http://spandh.dcs.shef.ac.uk/projects/chime/PCC/datasets.html
 [y_t,fs] = wavread('DATA/s29_pbiz6p.wav');
 [d_t,fs] = wavread('DATA/s29_pbiz6p_enhanced_target.wav');
 [x_t,fs] = wavread('DATA/s29_pbiz6p_enhanced_noise.wav');
@@ -82,8 +83,8 @@ Y        = stft_HTK(y_t,config);
 D        = stft_HTK(d_t,config);
 X        = stft_HTK(x_t,config);
 
-% We use the ratio of amplitudes to attain an estimate of speech activity. This is 
-% not the only way it could be done.
+% We use the ratio of amplitudes to attain an estimate of speech activity.
+% This is just a way of doing so.
 p   = abs(X)./(abs(X) + abs(D));
 
 % Get sizes
@@ -97,7 +98,9 @@ p   = abs(X)./(abs(X) + abs(D));
 % STFT-UP solution for MFCCs                                  
 [mu_x,Sigma_x] = mfcc_spars_up(Y,p,config);
 % Deltas and Accelerations
-[mu_x,Sigma_x] = append_deltas_up(mu_x,Sigma_x,config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
+[mu_x,Sigma_x] = append_deltas_up(mu_x,Sigma_x,config.targetkind,...
+                                  config.deltawindow,config.accwindow,...
+                                  config.simplediffs);
 % Cepstral Mean Subtraction
 [mu_x,Sigma_x] = cms_up(mu_x,Sigma_x,config.targetkind);
 
@@ -108,6 +111,10 @@ max_samples = 1e3;
 % This will store first and second order statistics
 mu_x_MC     = zeros(size(mu_x));
 mu_x2_MC    = zeros(size(mu_x));
+% This will be used as dummy all-zero matrices of each size
+zeros_X     = zeros(K,L);
+zeros_x     = zeros(config.nceps+1,L);
+zeros_xda   = zeros(3*(config.nceps+1),L);
 % Draw samples and accumulate statistics
 for n = 1:max_samples
     % Draw from scaled Bernoulli STFT
@@ -116,11 +123,13 @@ for n = 1:max_samples
     % Beamformer
     sample_X   = sample_X_1 + sample_X_2;
     % Transform through conventional mfccs (zero variance)                             
-    sample_x = mfcc_up(sample_X,zeros(size(sample_X)),config);
+    sample_x = mfcc_up(sample_X,zeros_X,config);
     % Deltas and Accelerations
-    sample_x = append_deltas_up(sample_x,zeros(size(sample_x)),config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
+    sample_x = append_deltas_up(sample_x,zeros_x,...
+                                config.targetkind,config.deltawindow,...
+                                config.accwindow,config.simplediffs);
     % Cepstral Mean Subtraction
-    sample_x = cms_up(sample_x,zeros(size(sample_x)),config.targetkind);
+    sample_x = cms_up(sample_x,zeros_xda,config.targetkind);
     % Accumulate statistics
     mu_x_MC  = ((n-1)*mu_x_MC  + sample_x)/n;
     mu_x2_MC = ((n-1)*mu_x2_MC + sample_x.^2)/n;

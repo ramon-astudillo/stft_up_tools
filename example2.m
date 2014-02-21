@@ -29,7 +29,8 @@ clear,clc
 addpath('stft')
 addpath('mfcc_up')
 addpath('speech_enhancement')
-% addpath('voicebox')   % Add this to write files in HTK format (see end of this file)
+% addpath('voicebox')   % Add this to write files in HTK format (see end of
+                        % this file)
 
 %%%%%%%%%%%%%%%%%%%%
 %  INITIALIZATION
@@ -66,18 +67,22 @@ config              = init_stft_HTK(config);
 [config.W,config.T] = init_mfcc_HTK(config);
 
 % SPEECH ENHANCEMENT CONFIGURATION
-alpha     = 0.92;                     % Decision directed a priori SNR estimation parameter. 
-dB_xi_min = -25;                      % Limits minimal a priori SNR 
+alpha     = 0.92;                     % Decision-directed a priori SNR 
+                                      % smoothing parameter. 
+dB_xi_min = -25;                      % Minimum a priori SNR in dB
 imcra     = init_IMCRA(config.nfft/2+1);
 
 % UNCERTAINTY PROPAGATION CONFIGURATION
 % Note that 'LOGUT' approx. can not be used with config.usepower = 'T'; and 
-% might break due to non positive definiteness when config.diagcov_flag = 0
-config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF approximation, 
-                                      % 'LOGUT': Unscented transform for the logarithm propagation. 
-config.diagcov_flag       = 0;        % 0 = Full covariance after Mel-filterbank considered
+% might break due to non positive definite matirces when 
+config.log_prop           = 'LOGN';   % 'LOGN': Log-normal/CGF appro., 
+                                      % 'LOGUT': Unscented transform for
+                                      % the logarithm propagation. 
+config.diagcov_flag       = 0;        % 0 = Full covariance after 
+                                      % Mel-filterbank considered
 config.min_var            = 1e-6;     % Floor for the uncertainty
-config.Chik               = 2;        % Use Chi with one or two degrees of freedom, see [Astudillo2010, Ch. 5]
+config.Chik               = 2;        % Use Chi with one or two degrees of
+                                      % freedom, see [Astudillo2010, Ch. 5]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIGNAL PROCESSING + FEATURE EXTRACTION FOR EACH FILE
@@ -87,26 +92,27 @@ config.Chik               = 2;        % Use Chi with one or two degrees of freed
 file_list = {'DATA/s2_swwp2s.wav'};
 
 for i=1:length(file_list)
-	
-	%
-	% SIMULATED NOISY SIGNAL
-	%
-	
-	% We will use an example from the GRID audiovisual corpus. You can download this from
-	% http://spandh.dcs.shef.ac.uk/gridcorpus/examples/s2_swwp2s.wav 
-	[x,fs] = wavread(file_list{i});
+    
+    %
+    % SIMULATED NOISY SIGNAL
+    %
+    
+    % We will use an example from the GRID audiovisual corpus. You can
+    % download this from
+    % http://spandh.dcs.shef.ac.uk/gridcorpus/examples/s2_swwp2s.wav 
+    [x,fs] = wavread(file_list{i});
     % Downsample to 16KHz
     x = resample(x,16,25);
-	% We will artificially add white noise as an example
-	d      = 0.25*mean(abs(x))*randn(size(x));
-	y      = x + d;
-	% Compute STFT
-	Y      = stft_HTK(y,config);
-	% Compute STFT of noise
-	D      = stft_HTK(d,config);
-	% Get sizes
-	[K,L]  = size(Y);
-
+    % We will artificially add white noise as an example
+    d      = 0.25*mean(abs(x))*randn(size(x));
+    y      = x + d;
+    % Compute STFT
+    Y      = stft_HTK(y,config);
+    % Compute STFT of noise
+    D      = stft_HTK(d,config);
+    % Get sizes
+    [K,L]  = size(Y);
+    
     %
     % SPEECH ENHANCEMENT + FEATURE EXTRACTION
     %
@@ -138,10 +144,10 @@ for i=1:length(file_list)
     for l=1:L 
         
         % SNR ESTIMATION (II)
-        % A posteriori SNR
-        new_Gamma = (abs(Y(:,l)).^2)./imcra.Lambda_D;                      % [2, eq.3]
-        % Decision directed a priori SNR estimation, with lower bound
-        xi        = alpha*(GH1.^2).*Gamma + (1-alpha)*max(new_Gamma-1,0);  % [2, eq.32]
+        % A posteriori SNR [2, eq.3]
+        new_Gamma = (abs(Y(:,l)).^2)./imcra.Lambda_D;                      % 
+        % Decision-directed a priori SNR, with flooring [2, eq.32]
+        xi        = alpha*(GH1.^2).*Gamma + (1-alpha)*max(new_Gamma-1,0);  
         xi        = max(xi,10^(dB_xi_min/20));                             
         % Update Gamma
         Gamma     = new_Gamma;
@@ -165,17 +171,22 @@ for i=1:length(file_list)
     % MMSE-LSA + MFCC
     % We propagate into log(|X|) domain and invert the point estimate. We
     % also use the noisy phase, yielding
-    hat_X_LSA       = hat_X_W.*exp(.5*expint((abs(hat_X_W).^2)./Lambda));   
+    hat_X_LSA = hat_X_W.*exp(.5*expint((abs(hat_X_W).^2)./Lambda));   
     % Compute MFCCs
-    hat_x_LSA       = mfcc_up(hat_X_LSA,zeros(size(hat_X_W)),config);
+    hat_x_LSA = mfcc_up(hat_X_LSA,zeros(size(hat_X_W)),config);
     % Deltas and Accelerations
-    hat_x_LSA       = append_deltas_up(hat_x_LSA,zeros(size(hat_x_LSA)),config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
+    hat_x_LSA = append_deltas_up(hat_x_LSA,zeros(size(hat_x_LSA)),...
+                                 config.targetkind,config.deltawindow,...
+                                 config.accwindow,config.simplediffs);
 
     % MMSE-MFCC
     % The point estimate is produced directly in MFCC domain
     [mu_x,Sigma_x] = mfcc_up(hat_X_W,Lambda,config);
     % Deltas and Accelerations
-    [hat_x,Sigma_x] = append_deltas_up(mu_x,Sigma_x,config.targetkind,config.deltawindow,config.accwindow,config.simplediffs);
+    [hat_x,Sigma_x] = append_deltas_up(mu_x,Sigma_x,config.targetkind,...
+                                       config.deltawindow,...
+                                       config.accwindow,...
+                                       config.simplediffs);
 
     % 
     % WRITING INTO A HTK-FORMAT FILE
@@ -186,7 +197,7 @@ for i=1:length(file_list)
     % attained with the writehtk.m function of the voicebox toolbox
     % the targetkind used is USER (9), see help writehtk for details.
     % Note the transposed feature matrix
-    
-    % writehtk('s2_swwp2s.mfcc',hat_x',(config.windowsize-config.overlap)/config.fs,9)
+    % fp = (config.windowsize-config.overlap)/config.fs
+    % writehtk('s2_swwp2s.mfcc',hat_x',fp,9)
     
 end
