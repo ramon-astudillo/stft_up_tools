@@ -1,4 +1,4 @@
-% function [mu_x,Sigma_x] = mfcc_up(mu_X,Sigma_X,cf) 
+% function [mu_x,Sigma_x] = mfcc_up(X,p,cf) 
 %
 % This function perfoms uncertainty propagation for MFCC based feature 
 % extractions. It transforms an uncertain STFT into MFCC domain. The input
