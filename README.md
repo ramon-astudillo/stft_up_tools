@@ -57,4 +57,18 @@ The approach in [2] models the uncertainty over the value of each Fourier coeffi
     EXTRACTION FRAMEWORK FOR ROBUST SPEECH RECOGNITION IN NOISY ENVIRONMENTS, In 2nd International 
     Workshop on Machine Listening in Multisource Environments (CHiME), pages 33-38, June 2013
 
-Ramón F. Astudillo, last revision Oct 2013
+**Propagation Through ISTFT-STFT**
+
+Propagation through a linear transformation for Gaussian variables is trivial. However, it can bring interesting advantages. Many speech processing pipelines include an intermediate STFT+STFT transformation separating speech
+processing and machine listening stages. The approach presented in
+
+    [5] R. F. Astudillo and S. Braun and E. A. P. Habets "A Multichannel Feature Compensation Approach 
+    for Robust ASR in Noisy and Reverberant Environments", In 1st REverberant Voice Enhancement and Recognition Benchmark     (REVERB) Workshop 2014.   
+
+allows to propagate through this transformation when different configurations are used at the speech processing or machine listening stages. This helps aleviate estimation errors and has a positive effect on recognition rates. No example code is avaliable at this point. The idea can be tested however as part of the DIRHA-GIRD baseline, see
+
+    https://github.com/ramon-astudillo/custom_fe
+    
+Future code releases will also be probably moved to custom_fe since it provides a plug-and-play way of testing algorithms on HTK or Kaldi recipes.
+
+Ramón F. Astudillo, last revision July 2014
