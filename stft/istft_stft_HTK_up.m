@@ -99,9 +99,9 @@ for delta = 1:config.windowsize + config1.windowsize
         MSE2(:,idx_l2) = MSE2(:,idx_l2) + (abs(R).^2)*ft(:,idx_l1);
     end
     
-    if ~mod(delta,50)
-        fprintf('\rISTFT-UP %2.0f%%',100*delta/(config.windowsize + config1.windowsize-1))
-    end
+%    if ~mod(delta,50)
+%        fprintf('\rISTFT-UP %2.0f%%',100*delta/(config.windowsize + config1.windowsize-1))
+%    end
 end
 
 % Get only lower part
