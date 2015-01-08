@@ -55,7 +55,12 @@ elseif strcmp(cf.log_prop,'LOGN')
 end
 
 % If this is the targetkind solicited exit
-if strfind(cf.targetkind,'FBANK'); return; end
+if strfind(cf.targetkind,'FBANK'); 
+    if ~cf.diagcov_flag & any(Sigma_x(:))
+        Sigma_x = get_diagonal(Sigma_x, cf);
+    end
+    return; 
+end
 
 % DISCRETE COSINE TRANSFORM
 [mu_x,Sigma_x] = linear_up(mu_x,Sigma_x,cf.T,cf.diagcov_flag);
@@ -64,11 +69,23 @@ if strfind(cf.targetkind,'FBANK'); return; end
 mu_x    = [ mu_x(2:end,:)    ; mu_x(1,:) ];
 % Fix to get only the diagonal from full covariances
 if ~cf.diagcov_flag & any(Sigma_x(:))  
-    L = size(Sigma_x,3);
-    Sigma_tmp = zeros(size(Sigma_x,2),L);
-    for l = 1:L
-        Sigma_tmp(:,l) = diag(Sigma_x(:,:,l));
-    end
-    Sigma_x = Sigma_tmp;
+    Sigma_x = get_diagonal(Sigma_x, cf);
 end
 Sigma_x = [ Sigma_x(2:end,:) ; Sigma_x(1,:) ];
+
+
+
+
+%
+% subfunctions
+%
+
+function Sigma_x = get_diagonal(Sigma_x, cf)
+
+% Fix to get only the diagonal from full covariances
+L         = size(Sigma_x,3);
+Sigma_tmp = zeros(size(Sigma_x,2),L);
+for l = 1:L
+    Sigma_tmp(:,l) = diag(Sigma_x(:,:,l));
+end
+Sigma_x = Sigma_tmp;
