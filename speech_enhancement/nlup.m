@@ -49,10 +49,12 @@ switch method
         % [Ephraim1985].
         hat_x(nu>1300) = abs(mu_XcY(nu>1300));  
         
-     case 'PSD'    
+     case 'STSP'    
         % Estimate noise amplitude with MMSE-PSD
         hat_x     = abs(mu_XcY).^2 + Sigma_XcY;  
         Lambda_x  = 2*Sigma_XcY.*abs(mu_XcY).^2 + Sigma_XcY.^2;
 
+     otherwise 
+        error('Unknown STFT MMSE ehancement method %s', method)
 end
        

@@ -27,7 +27,7 @@ switch method
         hat_X  = hat_x.*alpha;
         Lambda = zeros(size(hat_X));
         
-    case 'PSD'
+    case 'STSP'
         
         % Retrieve amplitude estimate, use mixture phase
         hat_X  = sqrt(hat_x).*alpha;
