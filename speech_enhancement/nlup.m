@@ -27,6 +27,11 @@ switch method
         hat_x    = mu_XcY;
         Lambda_x = Sigma_XcY;
             
+    case 'MFCC' 
+        %
+        hat_x    = mu_XcY;
+        Lambda_x = Sigma_XcY;
+ 
     case 'LSA'
         %
         nu       = (abs(mu_XcY).^2)./Sigma_XcY;        % SNR of Wiener posterior (for the noise Fourier coeff.)
