@@ -27,7 +27,9 @@ This propagates an uncertain description of the STFT of a signal into MFCC domai
 
     [2] R. F. Astudillo, "Integration of short-time Fourier domain speech enhancement and observation
     uncertainty techniques for robust automatic speech recognition", Ph.D. dissertation, Technische 
-    Universitaet Berlin, 2010.
+    Universitaet Berlin, 2010. 
+    
+[[pdf](https://d-nb.info/1005939284/34)]
 
 **A MMSE-MFCC Estimator derived with STFT-UP**
 
