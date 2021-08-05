@@ -1,9 +1,7 @@
 stft_up_tools
 =============
 
-This is part of the code I used for speech enhancement and Short-Time Fourier Transform Uncertainty Propagation (STFT-UP) in my thesis and related papers. I developed the first versions while doing my Ph.D. at the Technische Universtitaet Berlin. The code therefore benefited from the previous works of Prof. Dorothea Kolossa and her students in particular Diep Huyn and Alexander Klimas. Latest version or a link to an online repository should be found here
-
-    http://www.astudillo.com/ramon/research/stft-up/ 
+This is part of the code I used for speech enhancement and Short-Time Fourier Transform Uncertainty Propagation (STFT-UP) in my thesis and related papers. I developed the first versions while doing my Ph.D. at the Technische Universtitaet Berlin. The code therefore benefited from the previous works of Prof. Dorothea Kolossa and her students in particular Diep Huyn and Alexander Klimas. For a short description ot the Thesis, see PhD section here https://ramon-astudillo.github.io/
 
 Feel free to use it entirely or partially for your own code. Just reference the corresponding papers (and the repo URL for e.g. the IMCRA implementation). 
 
